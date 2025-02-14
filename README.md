@@ -1,50 +1,81 @@
-# Welcome to your Expo app 👋
+# Rede Social - TCC
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Uma rede social desenvolvida com React Native e Expo, utilizando Firebase como backend.
 
-## Get started
+## Funcionalidades
 
-1. Install dependencies
+- Autenticação de usuários
+- Perfil de usuário com foto
+- Sistema de avaliação (1-10 estrelas)
+- Feed de posts
+- Sistema de matches
+- Chat entre usuários
 
-   ```bash
-   npm install
-   ```
+## Tecnologias Utilizadas
 
-2. Start the app
+- React Native
+- Expo
+- Firebase (Auth, Firestore, Storage)
+- TypeScript
+- Node.js
 
-   ```bash
-    npx expo start
-   ```
+## Pré-requisitos
 
-In the output, you'll find options to open the app in a
+- Node.js
+- npm ou yarn
+- Expo CLI
+- Firebase CLI
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Configuração do Ambiente
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
+1. Clone o repositório:
 ```bash
-npm run reset-project
+git clone https://github.com/gabriel-Andrade-Correa/Rede_social.git
+cd Rede_social
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Instale as dependências:
+```bash
+npm install
+# ou
+yarn install
+```
 
-## Learn more
+3. Configure as variáveis de ambiente:
+- Crie um arquivo `.env` baseado no `.env.example`
+- Adicione suas configurações do Firebase
 
-To learn more about developing your project with Expo, look at the following resources:
+4. Inicie o projeto:
+```bash
+npx expo start
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Estrutura do Projeto
 
-## Join the community
+```
+src/
+  ├── components/     # Componentes reutilizáveis
+  ├── screens/        # Telas do aplicativo
+  ├── services/       # Serviços e integrações
+  ├── config/         # Configurações
+  ├── constants/      # Constantes e temas
+  └── types/          # Definições de tipos TypeScript
+```
 
-Join our community of developers creating universal apps.
+## Contribuição
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+1. Faça o fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+## Contato
+
+Gabriel Andrade - [@seu_twitter](https://twitter.com/seu_twitter) - seu_email@email.com
+
+Link do projeto: [https://github.com/gabriel-Andrade-Correa/Rede_social](https://github.com/gabriel-Andrade-Correa/Rede_social)
