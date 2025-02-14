@@ -1,36 +1,36 @@
 {
   "expo": {
-    "name": "dating-app-tcc",
+    "name": "Dating App TCC",
     "slug": "dating-app-tcc",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+      "supportsTablet": true,
+      "bundleIdentifier": "com.datingapp.tcc",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Precisamos de acesso à sua galeria para que você possa selecionar uma foto de perfil.",
+        "NSCameraUsageDescription": "Precisamos de acesso à sua câmera para que você possa tirar uma foto de perfil."
       }
     },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+    "android": {
+      "package": "com.datingapp.tcc",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "plugins": [
-      "expo-router",
       [
-        "expo-splash-screen",
+        "expo-image-picker",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "photosPermission": "O aplicativo precisa acessar suas fotos para que você possa selecionar uma foto de perfil.",
+          "cameraPermission": "O aplicativo precisa acessar sua câmera para que você possa tirar uma foto de perfil."
         }
       ]
     ],

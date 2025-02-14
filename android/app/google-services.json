@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "517156873976",
+    "project_id": "projetotcc-ea81d",
+    "storage_bucket": "projetotcc-ea81d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:517156873976:android:1d69fc5a889dce04e1bd0d",
+        "android_client_info": {
+          "package_name": "com.datingapp.tcc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9XKAhINDxvoczoZLaByAFFtl2Q6SNSHg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

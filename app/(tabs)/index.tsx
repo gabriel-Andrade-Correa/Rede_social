@@ -1,74 +1,67 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { StyleSheet, FlatList, View, Image, Dimensions } from 'react-native';
+import { Text } from '@/components/Themed';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { FeedScreen } from '@/screens/FeedScreen';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
-}
+export default FeedScreen;
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  postContainer: {
+    padding: 15,
+    paddingHorizontal: 16,
+    backgroundColor: '#000',
+    borderBottomWidth: 0.8,
+    borderBottomColor: '#333',
+    paddingBottom: 20,
+  },
+  postHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    marginBottom: 10,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  userImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  userInfo: {
+    marginLeft: 10,
   },
+  userName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  timeAgo: {
+    fontSize: 12,
+    color: '#666',
+  },
+  postText: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  postImage: {
+    width: Dimensions.get('window').width - 32,
+    height: 300,
+    marginBottom: 10,
+  },
+  postFooter: {
+    flexDirection: 'row',
+    marginTop: 10,
+  },
+  interactionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 20,
+  },
+  interactionText: {
+    marginLeft: 5,
+    fontSize: 14,
+    color: '#666',
+  }
 });
