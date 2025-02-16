@@ -3,37 +3,47 @@
  * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
  */
 
-const primaryPink = '#FF69B4';
-const primaryGold = '#D4AF37';
-const secondaryPink = '#FFC0CB';
-const secondaryGold = '#B8860B';
+/**
+ * Tema rosa e dourado para o aplicativo
+ */
 
-const tintColorLight = '#FF69B4';
-const tintColorDark = '#D4AF37';
+// Cores principais
+const primaryPink = '#FF69B4';    // Rosa vibrante
+const primaryGold = '#D4AF37';    // Dourado principal
+const secondaryPink = '#FFB6C1';  // Rosa suave
+const secondaryGold = '#FFD700';  // Dourado mais claro
+const accentGold = '#DAA520';     // Dourado mais escuro para acentos
+
+const tintColorLight = primaryPink;
+const tintColorDark = primaryGold;
 
 export const Colors = {
   light: {
     text: '#000',
     textDim: '#666',
     background: '#fff',
-    cardBackground: '#f8f8f8',
+    cardBackground: '#FFF9F9', // Fundo com leve tom rosado
     tint: tintColorLight,
-    icon: '#000',
+    icon: primaryGold,
     tabIconDefault: '#ccc',
-    tabIconSelected: tintColorLight,
-    primary: '#FF69B4',
-    secondary: '#D4AF37',
+    tabIconSelected: primaryPink,
+    primary: primaryPink,
+    secondary: primaryGold,
+    accent: accentGold,
+    error: '#dc3545'
   },
   dark: {
     text: '#fff',
     textDim: '#999',
     background: '#000',
-    cardBackground: '#111',
+    cardBackground: '#1a1a1a',
     tint: tintColorDark,
-    icon: '#fff',
-    tabIconDefault: '#666',
-    tabIconSelected: tintColorDark,
-    primary: '#D4AF37',
-    secondary: '#FF69B4',
+    icon: primaryGold,
+    tabIconDefault: secondaryGold,
+    tabIconSelected: primaryGold,
+    primary: primaryPink,
+    secondary: primaryGold,
+    accent: accentGold,
+    error: '#ff4444'
   },
 };

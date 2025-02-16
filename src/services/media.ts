@@ -7,34 +7,100 @@ import { Platform } from 'react-native';
 // Use o IP correto baseado na plataforma
 const getApiUrl = () => {
   if (__DEV__) {
-    // 10.0.2.2 é o localhost do emulador Android
-    // Para iOS ou dispositivo físico, use o IP da sua máquina
-    if (Platform.OS === 'android' && !Constants.isDevice) {
-      return 'http://10.0.2.2:3000/api';
-    }
-    // Para iOS e dispositivos físicos
-    return 'http://192.168.1.35:3000/api';
+    console.log('Ambiente de desenvolvimento detectado');
+    console.log('Platform.OS:', Platform.OS);
+    console.log('Constants.isDevice:', Constants.isDevice);
+    
+    // Para dispositivo físico ou iOS, use o IP da máquina
+    const localIP = '192.168.1.102';
+    console.log('Usando IP:', localIP);
+    return `http://${localIP}:3000/api`;
   }
   return 'sua_url_de_producao';
 };
 
 const API_URL = getApiUrl();
-
-// Log para debug
-console.log('API URL configurada:', API_URL);
+console.log('API URL final configurada:', API_URL);
 
 // Configuração global do Axios
 axios.defaults.timeout = 10000; // 10 segundos
 axios.defaults.headers.common['Accept'] = 'application/json';
+axios.defaults.validateStatus = function (status) {
+  return status >= 200 && status < 500; // Aceita qualquer status entre 200 e 499
+};
+
+// Adiciona um interceptor para logs
+axios.interceptors.request.use(
+  config => {
+    console.log('Requisição sendo enviada:', {
+      url: config.url,
+      method: config.method,
+      headers: config.headers,
+    });
+    return config;
+  },
+  error => {
+    console.error('Erro na preparação da requisição:', error);
+    return Promise.reject(error);
+  }
+);
+
+axios.interceptors.response.use(
+  response => {
+    console.log('Resposta recebida:', {
+      status: response.status,
+      headers: response.headers,
+      data: response.data,
+    });
+    return response;
+  },
+  error => {
+    console.error('Erro na resposta:', {
+      message: error.message,
+      code: error.code,
+      response: error.response,
+    });
+    return Promise.reject(error);
+  }
+);
 
 // Função para testar a conexão com o servidor
 export const testServerConnection = async () => {
   try {
-    const response = await axios.get(`${API_URL}/health`);
+    // Testando primeiro a raiz da API
+    console.log('Testando conexão com:', API_URL);
+    const response = await axios.get(API_URL);
     console.log('Conexão com servidor OK:', response.data);
     return true;
   } catch (error) {
-    console.error('Erro ao conectar com servidor:', error);
+    console.error('Erro detalhado ao conectar com servidor:', error);
+    if (axios.isAxiosError(error)) {
+      console.error('Detalhes do erro Axios:', {
+        message: error.message,
+        code: error.code,
+        response: error.response?.data,
+        config: {
+          url: error.config?.url,
+          method: error.config?.method,
+          headers: error.config?.headers,
+        }
+      });
+
+      // Tentar fazer uma requisição com configurações específicas para debug
+      try {
+        console.log('Tentando conexão alternativa...');
+        const testResponse = await fetch(API_URL, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        });
+        console.log('Resposta do teste:', await testResponse.text());
+      } catch (fetchError) {
+        console.error('Erro no teste alternativo:', fetchError);
+      }
+    }
     return false;
   }
 };
@@ -54,7 +120,7 @@ export interface Media {
 }
 
 // Função auxiliar para obter o token de autenticação
-const getAuthHeader = async () => {
+export const getAuthHeader = async () => {
   try {
     let token = await AsyncStorage.getItem('jwt_token');
     if (!token) {
@@ -79,107 +145,98 @@ export const uploadMedia = async (
   fileUri: string,
   metadata?: Media['metadata']
 ): Promise<string> => {
-  let currentFormData: FormData | null = null;
-  
   try {
-    // Testar conexão primeiro
-    const isConnected = await testServerConnection();
-    if (!isConnected) {
-      throw new Error('Servidor não está acessível. Verifique se o servidor está rodando e se o IP está correto.');
+    // Primeiro, testar a conexão com uma chamada simples
+    console.log('Testando conexão básica...');
+    try {
+      const testUrl = API_URL.replace('/api', '');
+      console.log('Testando conexão com:', testUrl);
+      
+      const testResponse = await fetch(testUrl);
+      console.log('Status da resposta do teste:', testResponse.status);
+      
+      const testText = await testResponse.text();
+      console.log('Resposta do teste:', testText);
+    } catch (testError) {
+      console.error('Erro no teste de conexão:', testError);
+      // Continuar mesmo com erro no teste
     }
 
-    // Criar FormData com a imagem
+    // Criar FormData de maneira mais simples
     const formData = new FormData();
-    currentFormData = formData;
     
-    const filename = fileUri.split('/').pop() || 'photo.jpg';
-    const match = /\.(\w+)$/.exec(filename);
-    const mimeType = match ? `image/${match[1]}` : 'image/jpeg';
-
-    // Log do arquivo sendo enviado
-    console.log('Arquivo a ser enviado:', {
+    // Preparar o arquivo com o nome do arquivo original
+    const fileName = fileUri.split('/').pop() || 'image.jpg';
+    const fileInfo = {
       uri: fileUri,
-      name: filename,
-      type: mimeType
+      name: fileName,
+      type: 'image/jpeg'
+    };
+    
+    console.log('Preparando upload com:', {
+      fileName,
+      uri: fileUri,
+      type: type
     });
 
-    // Adicionar arquivo ao FormData
-    const fileData = {
-      uri: fileUri,
-      name: filename,
-      type: mimeType,
-    };
-    formData.append('file', fileData as any);
-
-    // Adicionar outros campos
+    // Adicionar ao FormData
+    formData.append('file', fileInfo as any);
     formData.append('type', type);
-    formData.append('userId', userId);
-    if (metadata) {
-      formData.append('metadata', JSON.stringify(metadata));
+
+    // Obter token
+    const authHeader = await getAuthHeader();
+    
+    const uploadUrl = `${API_URL}/media/upload`;
+    console.log('Iniciando upload para:', uploadUrl);
+
+    // Fazer a requisição
+    const response = await fetch(uploadUrl, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Authorization': authHeader.Authorization
+      }
+    });
+
+    console.log('Status da resposta:', response.status);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Resposta não-ok do servidor:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
+      });
+      throw new Error(`Erro do servidor: ${response.status} ${response.statusText}`);
     }
 
-    // Obter headers de autenticação
-    const authHeader = await getAuthHeader();
+    const responseText = await response.text();
+    console.log('Resposta bruta do servidor:', responseText);
 
-    // Log para debug
-    console.log('Enviando requisição para:', `${API_URL}/media/upload`);
-    console.log('Headers:', authHeader);
-    console.log('FormData:', {
-      file: filename,
-      type,
-      userId,
-      metadata,
-    });
-
-    // Fazer upload com timeout maior para arquivos grandes
-    const response = await axios.post(`${API_URL}/media/upload`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        ...authHeader,
-      },
-      timeout: 30000, // 30 segundos
-    });
-
-    console.log('Resposta do servidor:', response.data);
-
-    if (!response.data || !response.data.mediaId) {
+    let responseData;
+    try {
+      responseData = JSON.parse(responseText);
+      console.log('Resposta do upload:', responseData);
+    } catch (parseError) {
+      console.error('Erro ao fazer parse da resposta:', parseError);
       throw new Error('Resposta inválida do servidor');
     }
 
-    return response.data.mediaId;
-  } catch (error) {
-    console.error('Detalhes completos do erro:', error);
-    
-    if (axios.isAxiosError(error)) {
-      // Erro de timeout
-      if (error.code === 'ECONNABORTED') {
-        throw new Error('O upload demorou muito tempo. Tente novamente.');
-      }
-      
-      // Erro de autenticação
-      if (error.response?.status === 401) {
-        throw new Error('Não autorizado. Faça login novamente.');
-      }
-      
-      // Erro do servidor
-      if (error.response) {
-        console.error('Erro do servidor:', error.response.data);
-        throw new Error(`Erro do servidor: ${error.response.data?.message || error.response.statusText}`);
-      }
-      
-      // Erro de conexão
-      if (error.request) {
-        console.error('Erro de conexão:', error.request);
-        throw new Error(`Erro de conexão: Verifique se o servidor está rodando em ${API_URL}`);
-      }
+    if (!responseData.id) {
+      throw new Error('Resposta inválida: id não encontrado');
     }
-    
-    throw new Error('Erro inesperado ao fazer upload da imagem: ' + (error instanceof Error ? error.message : 'Erro desconhecido'));
+
+    return responseData.id;
+  } catch (error) {
+    console.error('Erro no upload:', error);
+    throw new Error('Erro ao fazer upload da imagem: ' + (error instanceof Error ? error.message : 'Erro desconhecido'));
   }
 };
 
 export const getMediaUrl = (mediaId: string): string => {
-  return `${API_URL}/media/${mediaId}`;
+  // Usar a URL base da API
+  const baseUrl = API_URL.replace('/api', '');
+  return `${baseUrl}/api/media/${mediaId}`;
 };
 
 export const getUserMedia = async (userId: string, type: Media['type']): Promise<Media[]> => {

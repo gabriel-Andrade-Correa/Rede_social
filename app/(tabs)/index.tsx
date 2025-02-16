@@ -1,67 +1,117 @@
-import { StyleSheet, FlatList, View, Image, Dimensions } from 'react-native';
-import { Text } from '@/components/Themed';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { FeedScreen } from '@/screens/FeedScreen';
+import React, { useState, useEffect } from 'react';
+import {
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
+  useColorScheme,
+  RefreshControl,
+  View as RNView,
+} from 'react-native';
+import { Text, View } from '../../src/components/Themed';
+import { Colors } from '../../src/constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
+import { FeedPost } from '../../src/components/feed/FeedPost';
+import { useAuth } from '../../src/services/auth';
+import { getPosts, Post } from '../../src/services/posts';
+import CreatePostButton from '../../src/components/feed/CreatePostButton';
+import TopRatedUsers from '../../src/components/feed/TopRatedUsers';
 
-export default FeedScreen;
+export default function FeedScreen() {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const currentUser = useAuth();
+
+  useEffect(() => {
+    loadPosts();
+  }, []);
+
+  const loadPosts = async () => {
+    try {
+      setLoading(true);
+      const fetchedPosts = await getPosts();
+      setPosts(fetchedPosts);
+    } catch (error) {
+      console.error('Erro ao carregar posts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadPosts();
+    setRefreshing(false);
+  };
+
+  const handlePostDeleted = () => {
+    loadPosts();
+  };
+
+  const renderHeader = () => (
+    <TopRatedUsers />
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={Colors[isDark ? 'dark' : 'light'].primary} />
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={posts}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <FeedPost 
+            post={item} 
+            onPostDeleted={handlePostDeleted}
+          />
+        )}
+        ListHeaderComponent={renderHeader}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[Colors.light.primary]}
+            tintColor={Colors[isDark ? 'dark' : 'light'].primary}
+          />
+        }
+        ListEmptyComponent={() => (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>Nenhuma publicação encontrada</Text>
+          </View>
+        )}
+      />
+      <CreatePostButton />
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
   },
-  postContainer: {
-    padding: 15,
-    paddingHorizontal: 16,
-    backgroundColor: '#000',
-    borderBottomWidth: 0.8,
-    borderBottomColor: '#333',
-    paddingBottom: 20,
-  },
-  postHeader: {
-    flexDirection: 'row',
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
   },
-  userImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  userInfo: {
-    marginLeft: 10,
-  },
-  userName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  timeAgo: {
-    fontSize: 12,
-    color: '#666',
-  },
-  postText: {
-    fontSize: 16,
-    marginBottom: 10,
-  },
-  postImage: {
-    width: Dimensions.get('window').width - 32,
-    height: 300,
-    marginBottom: 10,
-  },
-  postFooter: {
-    flexDirection: 'row',
-    marginTop: 10,
-  },
-  interactionContainer: {
-    flexDirection: 'row',
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 20,
+    padding: 20,
   },
-  interactionText: {
-    marginLeft: 5,
-    fontSize: 14,
+  emptyText: {
+    fontSize: 16,
     color: '#666',
-  }
+    textAlign: 'center',
+  },
 });
